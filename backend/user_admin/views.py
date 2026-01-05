@@ -69,7 +69,7 @@ class UserDetailManagementView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
-       
+
         try:
             user = User.objects.get(pk=pk)
 
@@ -79,7 +79,6 @@ class UserDetailManagementView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            
             serializer = UserManagementSerializer(user, data=request.data, partial=True)
 
             if serializer.is_valid():

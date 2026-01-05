@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import api from "../../services/api";
-import { XMarkIcon, BookOpenIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  BookOpenIcon,
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
 
-function ProductForm({ setShowForm, fetchProducts, editProduct, setEditProduct }) {
+function ProductForm({
+  setShowForm,
+  fetchProducts,
+  editProduct,
+  setEditProduct,
+}) {
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     type: "",
     price: "",
     condition: "",
-    imageUrl: "",
+    image_url: "",
   });
 
-  const CONDITIONS = ["New", "Like New", "Very Good", "Good", "Acceptable"];
-  const TYPES = ["Hardcover", "Paperback", "E-book", "Audiobook"];
+  const CONDITIONS = ["new", "like_new", "very_good", "good", "acceptable"];
+
+  const TYPES = ["sale", "bogo", "donation"];
 
   useEffect(() => {
     if (editProduct) {
@@ -24,7 +34,7 @@ function ProductForm({ setShowForm, fetchProducts, editProduct, setEditProduct }
         type: editProduct.type || "",
         price: editProduct.price || "",
         condition: editProduct.condition || "",
-        imageUrl: editProduct.imageUrl || "",
+        image_url: editProduct.image_url || "",
       });
     }
   }, [editProduct]);
@@ -38,7 +48,10 @@ function ProductForm({ setShowForm, fetchProducts, editProduct, setEditProduct }
 
     try {
       if (editProduct) {
-        await api.put("dashboard/products/", { product_id: editProduct.id, ...data });
+        await api.put("dashboard/products/", {
+          product_id: editProduct.id,
+          ...data,
+        });
         toast.success("Book details updated");
       } else {
         await api.post("dashboard/products/", data);
@@ -59,28 +72,99 @@ function ProductForm({ setShowForm, fetchProducts, editProduct, setEditProduct }
           <h2 className="text-2xl font-serif font-bold text-slate-800">
             {editProduct ? "Edit Catalog Entry" : "Add to Collection"}
           </h2>
-          <button onClick={() => { setShowForm(false); setEditProduct(null); }} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={() => {
+              setShowForm(false);
+              setEditProduct(null);
+            }}
+            className="text-slate-400 hover:text-slate-600"
+          >
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Book Title" className="border-slate-200 border p-3 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none" required />
-          <input type="text" name="author" value={formData.author} onChange={handleChange} placeholder="Author Name" className="border-slate-200 border p-3 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none" required />
-          <select name="type" value={formData.type} onChange={handleChange} className="border-slate-200 border p-3 rounded-md bg-white outline-none" required>
-            <option value="">Format</option>
-            {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="Price (₹)" className="border-slate-200 border p-3 rounded-md outline-none" required />
-          <select name="condition" value={formData.condition} onChange={handleChange} className="border-slate-200 border p-3 rounded-md bg-white outline-none" required>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-3 gap-5"
+        >
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Book Title"
+            className="border-slate-200 border p-3 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+            required
+          />
+          <input
+            type="text"
+            name="author"
+            value={formData.author}
+            onChange={handleChange}
+            placeholder="Author Name"
+            className="border-slate-200 border p-3 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none"
+            required
+          />
+         <select
+  name="type"
+  value={formData.type}
+  onChange={handleChange}
+  className="border-slate-200 border p-3 rounded-md bg-white outline-none"
+  required
+>
+  <option value="">Sale Type</option>
+  {TYPES.map((t) => (
+    <option key={t} value={t}>
+      {t === "bogo" 
+        ? "Buy One Get One" 
+        : t.charAt(0).toUpperCase() + t.slice(1)
+      }
+    </option>
+  ))}
+</select>
+
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="Price (₹)"
+            className="border-slate-200 border p-3 rounded-md outline-none"
+            required
+          />
+          <select
+            name="condition"
+            value={formData.condition}
+            onChange={handleChange}
+          >
             <option value="">Condition</option>
-            {CONDITIONS.map(c => <option key={c} value={c}>{c}</option>)}
+            {CONDITIONS.map((c) => (
+              <option key={c} value={c}>
+                {c.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
+              </option>
+            ))}
           </select>
-          <input type="file" name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="Cover Image URL" className="border-slate-200 border p-3 rounded-md outline-none" required />
-          
+
+          <input
+            type="file"
+            name="image_url"
+            value={formData.image_url}
+            onChange={handleChange}
+            placeholder="Cover Image URL"
+            className="border-slate-200 border p-3 rounded-md outline-none"
+            required
+          />
+
           <div className="md:col-span-3 flex justify-end gap-3 mt-2">
-             <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2 rounded-md font-medium transition-colors flex items-center gap-2">
-              {editProduct ? <ArrowPathIcon className="h-4 w-4"/> : <BookOpenIcon className="h-4 w-4"/>}
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
+            >
+              {editProduct ? (
+                <ArrowPathIcon className="h-4 w-4" />
+              ) : (
+                <BookOpenIcon className="h-4 w-4" />
+              )}
               {editProduct ? "Update Book" : "List Book"}
             </button>
           </div>

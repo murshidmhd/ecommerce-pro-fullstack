@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "user_admin",
     "order_admin",
     # "dotenv",
+    "cloudinary",
 ]
 
 MIDDLEWARE = [
