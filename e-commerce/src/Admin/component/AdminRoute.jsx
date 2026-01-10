@@ -4,30 +4,37 @@ import api from "../../services/api";
 import { useEffect, useState } from "react";
 
 function AdminRoute({ children }) {
-  // const { user, loading } = useAuth();
   const { loading } = useAuth();
-  const [checking, setchecking] = useState(true);
+  const [checking, setChecking] = useState(true);
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      api
-        .get("/dashboard/products/health/")
-        .then(() => {
-          setAllowed(true);
-          console.log("allowed aan");
-        })
-        .catch((err) => {
-          setAllowed(false);
-          console.log("allowed alla", err.response?.status);
-        })
-        .finally(() => {
-          setchecking(false);
-        });
-    } else if (loading) {
-      setchecking(false);
+    // ⛔ WAIT until auth is fully restored
+    if (loading) return;
+
+    const token = localStorage.getItem("access");
+
+    if (!token) {
       setAllowed(false);
+      setChecking(false);
+      return;
     }
+
+    api
+      .get("/dashboard/products/health/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setAllowed(true);
+      })
+      .catch(() => {
+        setAllowed(false);
+      })
+      .finally(() => {
+        setChecking(false);
+      });
   }, [loading]);
 
   if (loading || checking) {
@@ -35,8 +42,6 @@ function AdminRoute({ children }) {
   }
 
   if (!allowed) {
-    console.log("not allowed navigate login page");
-
     return <Navigate to="/login" replace />;
   }
 
