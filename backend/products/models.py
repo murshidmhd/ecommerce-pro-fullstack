@@ -1,12 +1,18 @@
 from django.db import models
 from accounts.models import User
+from django.utils.text import slugify
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -42,7 +48,7 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=200)
 
-    type = models.CharField(max_length=20, choices=SALE_TYPE_CHOICES)
+    type = models.CharField(max_length=20, choices=SALE_TYPE_CHOICES, default="")
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES)

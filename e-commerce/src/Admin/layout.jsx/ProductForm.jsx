@@ -59,7 +59,7 @@ function ProductForm({
     try {
       if (editProduct) {
         form.append("product_id", editProduct.id);
-        await api.put("dashboard/products/", form);
+        await api.patch("dashboard/products/", form);
         toast.success("Book updated successfully");
       } else {
         await api.post("dashboard/products/", form);
